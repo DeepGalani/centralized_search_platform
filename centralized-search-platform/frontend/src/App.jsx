@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [userType, setUserType] = useState('Seller')
+  const [userType, setUserType] = useState('Agent')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
@@ -96,6 +96,10 @@ function App() {
                     </div>
                   </div>
                   <div className="info-row">
+                    <div className="info-item">
+                      <label>Location</label>
+                      <span>{item.location}</span>
+                    </div>
                     <div className="info-item">
                       <label>VIN</label>
                       <span style={{ fontFamily: 'monospace' }}>{item.vin}</span>

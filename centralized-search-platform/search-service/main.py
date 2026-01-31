@@ -98,7 +98,8 @@ def process_message(ch, method, properties, body):
         
         # Add search helpers
         if data.get('make') and data.get('model'):
-             result_text = f"{data['make']} {data['model']} {data.get('vin', '')}"
+             # make model vin location condition status
+             result_text = f"{data.get('make', '')} {data.get('model', '')} {data.get('vin', '')} {data.get('location', '')} {data.get('condition', '')} {data.get('status', '')}"
              es_doc['search_text'] = result_text
 
         es.index(index=INDEX_NAME, id=doc_id, document=es_doc)
@@ -180,8 +181,16 @@ def search(
         query_body["bool"]["must"].append({
             "multi_match": {
                 "query": q,
-                "fields": ["search_text^3", "vin", "id"],
-                "fuzziness": "AUTO" # Typo tolerance
+                "fields": [
+                    "search_text^3", 
+                    "id", "seller_id", "vin", 
+                    "make", "model", "year", 
+                    "location", "condition", "status",
+                    "price",
+                    "created_at"
+                ],
+                "fuzziness": "AUTO", # Typo tolerance
+                "lenient": True # Ignore data type mismatches (e.g. text search on price)
             }
         })
     else:

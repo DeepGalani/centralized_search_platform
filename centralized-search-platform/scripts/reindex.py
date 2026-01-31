@@ -10,6 +10,8 @@ import sys
 import subprocess
 import json
 import time
+import psycopg2
+from elasticsearch import Elasticsearch
 
 # Configuration
 DB_URL = "postgresql://admin:password@localhost:5432/marketplace"
@@ -45,7 +47,7 @@ def reindex_offers(conn, es):
             "status": row[9],
             "created_at": row[10].isoformat() if row[10] else None,
             "entity_type": "offer",
-            "search_text": f"{row[3]} {row[4]} {row[2]}"  # make model vin
+            "search_text": f"{row[3]} {row[4]} {row[2]} {row[7]} {row[8]} {row[9]}"  # make model vin loc cond status
         }
         
         doc_id = f"offer_{row[0]}"
@@ -56,7 +58,7 @@ def reindex_offers(conn, es):
             print(f"Indexed {count} offers...")
     
     cursor.close()
-    print(f"✅ Total offers indexed: {count}")
+    print(f"[OK] Total offers indexed: {count}")
     return count
 
 def reindex_purchases(conn, es):
@@ -83,7 +85,7 @@ def reindex_purchases(conn, es):
         count += 1
     
     cursor.close()
-    print(f"✅ Total purchases indexed: {count}")
+    print(f"[OK] Total purchases indexed: {count}")
     return count
 
 def reindex_transports(conn, es):
@@ -112,11 +114,11 @@ def reindex_transports(conn, es):
         count += 1
     
     cursor.close()
-    print(f"✅ Total transports indexed: {count}")
+    print(f"[OK] Total transports indexed: {count}")
     return count
 
 def main():
-    print("🔄 Starting reindexing process...")
+    print("Starting reindexing process...")
     
     try:
         # Connect to services
@@ -136,7 +138,7 @@ def main():
         
         elapsed = time.time() - start_time
         
-        print(f"\n🎉 Reindexing complete!")
+        print(f"\nReindexing complete!")
         print(f"Total records indexed: {total}")
         print(f"Time taken: {elapsed:.2f} seconds")
         print(f"Rate: {total/elapsed:.0f} docs/sec")
@@ -144,7 +146,7 @@ def main():
         conn.close()
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
